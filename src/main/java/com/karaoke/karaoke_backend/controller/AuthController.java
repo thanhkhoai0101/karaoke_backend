@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,16 +55,22 @@ public class AuthController {
     }
 
     @GetMapping("check-login")
-    public void checkLogin() {
+    public boolean checkLogin() {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof Employee) {
+            System.out.println("zô rồi!!");
+            return true;
+        }
+        System.out.println("Thoát");
+        return false;
 
     }
 
     @DeleteMapping("logout")
-    public void logout(ServletRequest servletRequest){
+    public void logout(ServletRequest servletRequest) {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         String token = request.getHeader("Authorization");
 
-        if (token != null){
+        if (token != null) {
             String rawToken = token.substring("Bearer ".length());
             loginSessionRepository.deleteById(loginSessionRepository.findByToken(rawToken).get().getId());
         }
